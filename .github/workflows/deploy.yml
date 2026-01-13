@@ -23,13 +23,12 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p ~/devops-demo"
           rsync -avz --exclude='.git/' ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/devops-demo/
 
-      - name: SSH into EC2 and restart Docker container
+      - name: Deploy on EC2
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-          cd ~/devops-demo &&
-          docker stop devops-demo || true &&
-          docker rm devops-demo || true &&
-          docker pull verdun90/devops-demo:latest || true &&
-          docker run -d -p 3000:3000 --name devops-demo verdun90/devops-demo:latest
+          docker stop devops-demo || true
+          docker rm devops-demo || true
+          docker pull verdun90/devops-demo:latest
+          docker run -d --restart unless-stopped -p 3000:3000 --name devops-demo verdun90/devops-demo:latest
           "
 
